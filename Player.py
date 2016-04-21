@@ -1,8 +1,7 @@
 # File: Player.py
-# Author(s) names AND netid's:
-# Date:
-# Group work statement: <please type the group work statement
-#      given in the pdf here>
+# Author(s) names AND netid's: James Whang (syw973)
+# Date: 4/21/2016
+# I worked individually on this project and all work is my own.
 # Defines a simple artificially intelligent player agent
 # You will define the alpha-beta pruning search algorithm
 # You will also define the score function in the MancalaPlayer class,
@@ -173,11 +172,28 @@ class MancalaPlayer(Player):
     """ Defines a player that knows how to evaluate a Mancala gameboard
         intelligently """
 
+    def __init__(self, playerNum, playerType):
+        Player.__init__(self, playerNum, playerType) 
+
+        self.p1score = 0 # player 1 score
+        self.p2score = 0 # player 2 score
+
     def score(self, board):
         """ Evaluate the Mancala board for this player """
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board
         print "Calling score in MancalaPlayer"
+
+        # first add what's in each player's mancala
+        self.p1score += board.scoreCups[0] 
+        self.p2score += board.scoreCups[1]
+
+        # evaluate the cups on my side
+        self.p1score += sum(board.getPlayersCups(1))
+        self.p1score += sum(board.getPlayersCups(2))
+
+        # TODO: update the weights of each cup
+
         return Player.score(self, board)
-        
+
