@@ -130,9 +130,60 @@ class Player:
     # and/or a different move search order.
     def alphaBetaMove(self, board, ply):
         """ Choose a move with alpha beta pruning.  Returns (score, move) """
-        print "Alpha Beta Move not yet implemented"
-        #returns the score adn the associated moved
-        return (-1,1)
+        # Check terminal conditions
+        if board.gameOver(): # Game done
+            return self.score(board), -1
+        elif ply == 0:
+            return self.score(board), board.legalMoves(self)[0] # give up, whatever is the first one
+
+        alpha = -INFINITY
+        beta = -INFINITY
+        score = -INFINITY
+        move = -1
+
+        for action in board.legalMoves(self):
+            # make a new board
+            nb = deepcopy(board)
+            nb.makeMove(self, action) # make the move with given action
+            action_score = self.alphaBetaMinmove(nb, alpha, beta, ply-1)
+            if action_score > score:
+                move = action
+                score = action_score
+            alpha = max(alpha, score)
+
+        return (score, move)
+
+    def alphaBetaMaxMove(self, state, alpha, beta, ply):
+        """ Find the max value for this player """
+        # Check terminal condition
+        if board.gameOver() or py is 0:
+            return self.score(board)
+        max_score = -INFINITY
+        for action in board.legalMoves(self): # examine all feasible actions
+            # make a new board
+            nb = deepcopy(board)
+            nb.makeMove(self, action)
+            # find opponent's move
+            max_score = max(max_score, self.alphaBetaMinMove(nb, alpha, beta, ply-1))
+            if (max_score >= beta): # if our score is geq beta, return this score
+                return score
+            alpha = max(alpha, max_score) # update alpha
+        return score
+
+    def alphaBetaMinmove(self, state, alpha, beta, ply):
+        """ Find the minimax value for the opponent """
+        if board.gameOver() or py is 0:
+            return self.score(board)
+        score = -INFINITY
+        for action in board.legalMoves(self): # Examine all feasible actions
+# make a new board
+            nb = deepcopy(board)
+            nb.makeMove(self.opp, action)
+            score = min(score, self.alphaBetaMaxMove(nb, alpha, beta, ply-1))
+            if (score <= alpha):
+                return score
+            beta = min(beta, score)
+        return score
                 
     def chooseMove(self, board):
         """ Returns the next move that this player wants to make """
@@ -195,5 +246,9 @@ class MancalaPlayer(Player):
 
         # TODO: update the weights of each cup
 
-        return Player.score(self, board)
+        if self.playerNum == 1:
+            return self.p1score
+        else:
+            return self.p2score
+#        return Player.score(self, board)
 
