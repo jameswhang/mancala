@@ -130,6 +130,9 @@ class Player:
     # and/or a different move search order.
     def alphaBetaMove(self, board, ply):
         """ Choose a move with alpha beta pruning.  Returns (score, move) """
+        # enemy player
+        self.opponent = Player(self.opp, self.type, self.ply)
+
         # Check terminal conditions
         if board.gameOver(): # Game done
             return self.score(board), -1
@@ -145,7 +148,7 @@ class Player:
             # make a new board
             nb = deepcopy(board)
             nb.makeMove(self, action) # make the move with given action
-            action_score = self.alphaBetaMinmove(nb, alpha, beta, ply-1)
+            action_score = self.alphaBetaMinMove(nb, alpha, beta, ply-1)
             if action_score > score:
                 move = action
                 score = action_score
@@ -153,10 +156,10 @@ class Player:
 
         return (score, move)
 
-    def alphaBetaMaxMove(self, state, alpha, beta, ply):
+    def alphaBetaMaxMove(self, board, alpha, beta, ply):
         """ Find the max value for this player """
         # Check terminal condition
-        if board.gameOver() or py is 0:
+        if board.gameOver() or ply is 0:
             return self.score(board)
         max_score = -INFINITY
         for action in board.legalMoves(self): # examine all feasible actions
@@ -166,19 +169,19 @@ class Player:
             # find opponent's move
             max_score = max(max_score, self.alphaBetaMinMove(nb, alpha, beta, ply-1))
             if (max_score >= beta): # if our score is geq beta, return this score
-                return score
+                return max_score
             alpha = max(alpha, max_score) # update alpha
-        return score
+        return max_score
 
-    def alphaBetaMinmove(self, state, alpha, beta, ply):
+    def alphaBetaMinMove(self, board, alpha, beta, ply):
         """ Find the minimax value for the opponent """
-        if board.gameOver() or py is 0:
+        if board.gameOver() or ply is 0:
             return self.score(board)
-        score = -INFINITY
-        for action in board.legalMoves(self): # Examine all feasible actions
+        score = INFINITY
+        for action in board.legalMoves(self.opponent): # Examine all feasible actions by the opponent
 # make a new board
             nb = deepcopy(board)
-            nb.makeMove(self.opp, action)
+            nb.makeMove(self.opponent, action)
             score = min(score, self.alphaBetaMaxMove(nb, alpha, beta, ply-1))
             if (score <= alpha):
                 return score
@@ -206,13 +209,9 @@ class Player:
             print "chose move", move, " with value", val
             return move
         elif self.type == self.CUSTOM:
-            # TODO: Implement a custom player
-            # You should fill this in with a call to your best move choosing
-            # function.  You may use whatever search algorithm and scoring
-            # algorithm you like.  Remember that your player must make
-            # each move in about 10 seconds or less.
-            print "Custom player not yet implemented"
-            return -1
+            val, move = self.MTCSMove(board, self.ply)
+            print "choose move", move, "with value", val
+            return move
         else:
             print "Unknown player type"
             return -1
@@ -223,8 +222,8 @@ class MancalaPlayer(Player):
     """ Defines a player that knows how to evaluate a Mancala gameboard
         intelligently """
 
-    def __init__(self, playerNum, playerType):
-        Player.__init__(self, playerNum, playerType) 
+    def __init__(self, playerNum, playerType, ply = 0):
+        Player.__init__(self, playerNum, playerType, ply) 
 
         self.p1score = 0 # player 1 score
         self.p2score = 0 # player 2 score
@@ -234,7 +233,6 @@ class MancalaPlayer(Player):
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board
-        print "Calling score in MancalaPlayer"
 
         # first add what's in each player's mancala
         self.p1score += board.scoreCups[0] 
