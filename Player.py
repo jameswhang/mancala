@@ -246,9 +246,8 @@ class MancalaPlayer(Player):
 
         # TODO: update the weights of each cup
 
-        if self.playerNum == 1:
+        if self.num == 1:
             return self.p1score
         else:
             return self.p2score
-#        return Player.score(self, board)
 
